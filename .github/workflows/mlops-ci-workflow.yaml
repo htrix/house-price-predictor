@@ -27,14 +27,12 @@ jobs:
               pip install -r requirements.txt
     
           - name: Run Data Processing tests
-            working-directory: ./src/data_processing    
             run: |
               python src/data/run_processing.py \
                 --input data/raw/house_data.csv  \
                 --output data/processed/cleaned_house_data.csv
 
-          - name: do feature Engineering
-            working-directory: ./src/data_processing    
+          - name: Do feature Engineering
             run: |
               python src/features/engineer.py \
                 --input data/processed/cleaned_house_data.csv \
@@ -42,7 +40,6 @@ jobs:
                 --preprocessor models/trained/preprocessor.pkl
 
           - name: Train the model
-            working-directory: ./src/data_processing    
             run: |
               python src/models/train_model.py  \
                 --config configs/model_config.yaml \
