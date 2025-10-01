@@ -26,6 +26,26 @@ jobs:
               python -m pip install --upgrade pip
               pip install -r requirements.txt
     
-          - name: Run tests
+          - name: Run Data Processing tests
+            working-directory: ./src/data_processing    
             run: |
-              pytest
+              python src/data/run_processing.py \
+                --input data/raw/house_data.csv  \
+                --output data/processed/cleaned_house_data.csv
+
+          - name: do feature Engineering
+            working-directory: ./src/data_processing    
+            run: |
+              python src/features/engineer.py \
+                --input data/processed/cleaned_house_data.csv \
+                --output data/processed/featured_house_data.csv \
+                --preprocessor models/trained/preprocessor.pkl
+
+          - name: Train the model
+            working-directory: ./src/data_processing    
+            run: |
+              python src/models/train_model.py  \
+                --config configs/model_config.yaml \
+                --data data/processed/featured_house_data.csv \
+                --models-dir models \
+                --mlflow-tracking-uri http://localhost:5555
