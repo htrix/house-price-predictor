@@ -23,4 +23,17 @@ Directory structure inside the container should look like this
          house_price_model.pkl
          preprocessor.pkl
 ```
+Build the image
 
+
+```
+docker image build -t fastapi .
+```
+Run container
+```
+docker run -idtP fastapi
+```
+Enter the container
+```
+docker run --rm -it fastapi bash
+```
