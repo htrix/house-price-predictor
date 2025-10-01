@@ -15,17 +15,20 @@ jobs:
         steps:
           - name: Checkout code
             uses: actions/checkout@v3
-    
+
           - name: Set up Python
             uses: actions/setup-python@v5
             with:
               python-version: '3.11'
-    
+
           - name: Install dependencies
             run: |
               python -m pip install --upgrade pip
               pip install -r requirements.txt
-    
+
+          # Remove or fix any 'working-directory' that points to a non-existent folder
+          # Ensure all script paths are correct
+
           - name: Run Data Processing tests
             run: |
               python src/data/run_processing.py \
