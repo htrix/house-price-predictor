@@ -39,3 +39,6 @@ dist/
 
 # Ignore all .pkl files (models, preprocessors, etc.)
 *.pkl
+data/processed/data_scientists_features.csv
+data/processed/cleaned_house_data.csv
+data/processed/featured_house_data.csv
