@@ -178,7 +178,7 @@ st.markdown(
     f"""
     <div style="text-align: center; color: gray; margin-top: 20px;">
         <p><strong>Built for MLOps Bootcamp</strong></p>
-        <p>by <a href="https://www.schoolofdevops.com" target="_blank">School of Devops</a></p>
+        <p>by Htrix</a></p>
         <p><strong>Version:</strong> {version}</p>
         <p><strong>Hostname:</strong> {hostname}</p>
         <p><strong>IP Address:</strong> {ip_address}</p>
