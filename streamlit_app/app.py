@@ -5,6 +5,31 @@ import time
 import os
 import socket  # For hostname and IP address
 
+# Resolve API endpoint dynamically across common local/container setups
+def resolve_api_base_url() -> str:
+    env_url = os.getenv("API_URL")
+    candidates = []
+
+    if env_url:
+        candidates.append(env_url.rstrip("/"))
+
+    candidates.extend([
+        "http://model:8000",                # docker-compose service name
+        "http://host.docker.internal:8000", # host API from container
+        "http://localhost:8000",            # local API
+    ])
+
+    for base_url in candidates:
+        try:
+            res = requests.get(f"{base_url}/health", timeout=2)
+            if res.ok:
+                return base_url
+        except requests.exceptions.RequestException:
+            continue
+
+    # Return the first candidate so UI can still show what was attempted
+    return candidates[0]
+
 # Set the page configuration (must be the first Streamlit command)
 st.set_page_config(
     page_title="House Price Predictor",
@@ -79,8 +104,8 @@ with col2:
             }
 
             try:
-                # Get API endpoint from environment variable or use default
-                api_endpoint = os.getenv("API_URL", "http://model:8000")
+                # Resolve API endpoint from env/config and common deployment patterns
+                api_endpoint = resolve_api_base_url()
                 predict_url = f"{api_endpoint.rstrip('/')}/predict"
 
                 st.write(f"Connecting to API at: {predict_url}")
@@ -95,7 +120,11 @@ with col2:
                 st.session_state.prediction_time = time.time()
             except requests.exceptions.RequestException as e:
                 st.error(f"Error connecting to API: {e}")
-                st.warning("Using mock data for demonstration purposes. Please check your API connection.")
+                st.warning(
+                    "Using mock data for demonstration purposes. "
+                    "If running Docker containers separately, place them on the same network "
+                    "and set API_URL (example: http://model:8000)."
+                )
                 # For demo purposes, use mock data if API fails
                 st.session_state.prediction = {
                     "predicted_price": 467145,
