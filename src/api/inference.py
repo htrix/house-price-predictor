@@ -11,7 +11,11 @@ try:
     model = joblib.load(MODEL_PATH)
     preprocessor = joblib.load(PREPROCESSOR_PATH)
 except Exception as e:
-    raise RuntimeError(f"Error loading model or preprocessor: {str(e)}")
+    raise RuntimeError(
+        "Error loading model or preprocessor. "
+        "This is often caused by dependency version mismatch between training and runtime "
+        f"(original error: {str(e)})."
+    )
 
 def predict_price(request: HousePredictionRequest) -> PredictionResponse:
     """

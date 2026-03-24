@@ -29,17 +29,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Health check endpoint
+# Health check endpoint to check if the API is running
 @app.get("/health", response_model=dict)
 async def health_check():
     return {"status": "healthy", "model_loaded": True}
 
-# Prediction endpoint
+# Prediction endpoint to predict price of a single house
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: HousePredictionRequest):
     return predict_price(request)
 
-# Batch prediction endpoint
+# Batch prediction endpoint to predict price of multiple houses
 @app.post("/batch-predict", response_model=list)
 async def batch_predict_endpoint(requests: list[HousePredictionRequest]):
     return batch_predict(requests)
