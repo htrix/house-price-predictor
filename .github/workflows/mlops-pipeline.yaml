@@ -73,15 +73,17 @@ jobs:
         run: |
           docker pull ghcr.io/mlflow/mlflow:latest
           docker rm -f mlflow-server || true
-          mkdir -p mlruns mlflow-data
+          rm -rf mlruns || true
+          mkdir -p mlruns
           docker run -d --name mlflow-server \
             -p 5000:5000 \
-            -v "$(pwd)/mlflow-data:/mlflow" \
-            -v "$(pwd)/mlruns:/mlflow/artifacts" \
+            # Mount mlruns to the SAME absolute path inside the container as on the runner.
+            # This makes the MLflow artifact URI returned by the server writable for the client too.
+            -v "$(pwd)/mlruns:$(pwd)/mlruns" \
             ghcr.io/mlflow/mlflow:latest \
             mlflow server --host 0.0.0.0 \
-              --backend-store-uri sqlite:////mlflow/mlflow.db \
-              --default-artifact-root /mlflow/artifacts
+              --backend-store-uri "sqlite://$(pwd)/mlruns/mlflow.db" \
+              --default-artifact-root "$(pwd)/mlruns"
 
       - name: Wait for MLflow to start
         run: |
@@ -95,9 +97,8 @@ jobs:
       - name: Train model
         run: |
           mkdir -p models
-          # Ensure the MLflow client logs artifacts into the runner-writable ./mlruns dir
-          # (otherwise it will try to create /mlflow on the host and fail with PermissionError).
-          MLFLOW_ARTIFACT_URI="file:$(pwd)/mlruns" python src/models/train_model.py \
+          # Run training; artifacts should be written into the runner-writable ./mlruns dir.
+          python src/models/train_model.py \
             --config configs/model_config.yaml \
             --data data/processed/featured_house_data.csv \
             --models-dir models \
