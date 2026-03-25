@@ -73,13 +73,14 @@ jobs:
         run: |
           docker pull ghcr.io/mlflow/mlflow:latest
           docker rm -f mlflow-server || true
-          mkdir -p mlruns
+          mkdir -p mlruns mlflow-data
           docker run -d --name mlflow-server \
             -p 5000:5000 \
+            -v "$(pwd)/mlflow-data:/mlflow" \
             -v "$(pwd)/mlruns:/mlflow/artifacts" \
             ghcr.io/mlflow/mlflow:latest \
             mlflow server --host 0.0.0.0 \
-              --backend-store-uri sqlite:////mlflow.db \
+              --backend-store-uri sqlite:////mlflow/mlflow.db \
               --default-artifact-root /mlflow/artifacts
 
       - name: Wait for MLflow to start
@@ -94,7 +95,9 @@ jobs:
       - name: Train model
         run: |
           mkdir -p models
-          python src/models/train_model.py \
+          # Ensure the MLflow client logs artifacts into the runner-writable ./mlruns dir
+          # (otherwise it will try to create /mlflow on the host and fail with PermissionError).
+          MLFLOW_ARTIFACT_URI="file:$(pwd)/mlruns" python src/models/train_model.py \
             --config configs/model_config.yaml \
             --data data/processed/featured_house_data.csv \
             --models-dir models \
