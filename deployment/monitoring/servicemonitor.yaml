@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: house-price-api-monitor
+  labels:
+    release: prom   # Match the Helm release name used above
+spec:
+  selector:
+    matchLabels:
+      app: model
+  namespaceSelector:
+    matchNames:
+      - default   # or your namespace
+  endpoints:
+    - port: "8000"   # match model service port
+      path: /metrics
+      interval: 15s
