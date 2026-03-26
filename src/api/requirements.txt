@@ -6,3 +6,4 @@ scikit-learn>=1.5,<2
 numpy>=2,<3
 xgboost>=2,<3
 pyyaml>=6.0,<7
+prometheus-fastapi-instrumentator==6.1.0
